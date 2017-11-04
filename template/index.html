@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{.Title}}</title>
+</head>
+<body>
+  <h3>Archive</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Url</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Records }}
+        <tr>
+          <td><a href="{{ .Path }}">{{ .Url }}</a></td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</body>
+</html>
