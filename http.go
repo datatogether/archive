@@ -12,7 +12,7 @@ import (
 
 // DoRequest performs an archival HTTP request, adding request & response records to
 // the given records pointer, returning the response record & a list of all dependant resources
-func DoRequest(req *http.Request, records *warc.Records) (reqr, resr *warc.Record, err error) {
+func DoRequest(req *http.Request, records warc.Records) (reqr, resr *warc.Record, err error) {
 	// don't perform requests for urls already in this list of archives
 	if rec := records.TargetUriRecord(req.URL.String(), warc.RecordTypeResponse, warc.RecordTypeResource); rec != nil {
 		return
@@ -56,7 +56,7 @@ func contentFromHttpRequest(req *http.Request) []byte {
 	// buf.WriteString(fmt.Sprintf("%s / %s\r\n", req.Method, req.Proto))
 	// buf.WriteString(fmt.Sprintf("Host: %s\r\n", req.Host))
 	// if err := writeHttpHeaders(buf, req.Header); err != nil {
-	// 	fmt.Println("error writing to buffer? strange:", err.Error())
+	// 	fmt.Println("error writing to buffer:", err.Error())
 	// }
 
 	// buf.WriteString(fmt.Sprintf("User-Agent: %s\r\n", req.UserAgent()))
@@ -67,7 +67,7 @@ func contentFromHttpRequest(req *http.Request) []byte {
 
 // HttpResponseRecord creates a record from an HTTP response
 func HttpResponseRecord(res *http.Response) (*warc.Record, error) {
-	raw, sanitized, err := SanitizeResponse(res)
+	raw, sanitized, mimetype, err := SanitizeResponse(res)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func HttpResponseRecord(res *http.Response) (*warc.Record, error) {
 			warc.FieldNameWARCPayloadDigest:         warc.Sha1Digest(raw),
 			warc.FieldNameContentType:               "application/http; msgtype=response",
 			warc.FieldNameWARCRecordID:              warc.NewUuid(),
-			warc.FieldNameWARCIdentifiedPayloadType: ffi.DetectContentType(res.Request.URL.String(), raw),
+			warc.FieldNameWARCIdentifiedPayloadType: mimetype,
 			warc.FieldNameWARCTargetURI:             res.Request.URL.String(),
 		},
 		Content: buf,
@@ -91,14 +91,13 @@ func HttpResponseRecord(res *http.Response) (*warc.Record, error) {
 	return resr, nil
 }
 
-func SanitizeResponse(res *http.Response) (raw, sanitized []byte, err error) {
+func SanitizeResponse(res *http.Response) (raw, sanitized []byte, mimetype string, err error) {
 	defer res.Body.Close()
-
 	raw, err = ioutil.ReadAll(res.Body)
 	if err != nil {
 		return
 	}
-
-	sanitized = warc.Sanitize(raw)
+	mimetype = ffi.DetectContentType(res.Request.URL.String(), raw)
+	sanitized, err = warc.Sanitize(mimetype, raw)
 	return
 }

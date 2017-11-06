@@ -7,35 +7,27 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/datatogether/cdxj"
 	"github.com/datatogether/warc"
 	"github.com/qri-io/cafs/memfs"
 )
 
-func ArchivePathName(rawurl string) string {
+func PackagePathName(rawurl string) string {
 	u, _ := url.Parse(rawurl)
 	u.Scheme = ""
 
 	// if u.Path == "" || u.Path == "/" || filepath.Base(u.Path) == "" {
 	// if u.Path == "" || u.Path == "/" || filepath.Base(u.Path) == "" {
 	if strings.HasSuffix(u.Path, "/") {
-		fmt.Println("adusting path:", u.Path, "->", u.Path+"index.html")
+		// fmt.Println("adusting path:", u.Path, "->", u.Path+"index.html")
 		u.Path += "index.html"
 	} else if filepath.Ext(u.Path) == "" {
-		fmt.Println("adusting path:", u.Path, "->", u.Path+"/index.html")
+		// fmt.Println("adusting path:", u.Path, "->", u.Path+"/index.html")
 		u.Path += "/index.html"
 	}
-	return strings.TrimPrefix(u.String(), "/")
+	return strings.TrimPrefix(u.Path, "/")
 }
 
 func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) {
-	// for i, rec := range records {
-	// 	fmt.Printf("%d: %s: %s\n", i, rec.Type, rec.TargetUri())
-	// }
-	// if len(records) > 0 {
-	// 	return nil, fmt.Errorf("boo")
-	// }
-
 	pkg := memfs.NewMemdir("/")
 	// cheap hack for now to only add files once, this should happen *much* earlier
 	// in the archival process
@@ -49,7 +41,7 @@ func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) 
 		}
 
 		// path := rw.Urlrw.RewriteString(rec.TargetUri())
-		path := ArchivePathName(rec.TargetUri())
+		path := PackagePathName(rec.TargetUri())
 		if added[path] {
 			continue
 		}
@@ -64,23 +56,23 @@ func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) 
 
 	indexBuf := &bytes.Buffer{}
 
-	// TODO - improve cdxj index
-	cdxi := make(cdxj.Index, len(urls))
-	for i, u := range urls {
-		// for now we're faking the actual index records
-		ir, err := cdxj.CreateRecord(&warc.Record{
-			Type: warc.RecordTypeRequest,
-			Headers: warc.Header{
-				warc.FieldNameWARCTargetURI: u,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-		cdxi[i] = ir
-	}
+	// TODO - improve cdxj index to add all fields required by cdxj spec
+	// cdxi := make(cdxj.Index, len(urls))
+	// for i, u := range urls {
+	// 	// for now we're faking the actual index records
+	// 	ir, err := cdxj.CreateRecord(&warc.Record{
+	// 		Type: warc.RecordTypeRequest,
+	// 		Headers: warc.Header{
+	// 			warc.FieldNameWARCTargetURI: u,
+	// 		},
+	// 	})
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	cdxi[i] = ir
+	// }
 
-	if err := RenderIndexTemplate(indexBuf, cdxi); err != nil {
+	if err := RenderIndexTemplate(indexBuf, urls, records); err != nil {
 		return nil, err
 	}
 

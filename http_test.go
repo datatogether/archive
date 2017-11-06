@@ -1,12 +1,14 @@
 package archive
 
 import (
-	"bytes"
-	"fmt"
+	// "bytes"
+	// "fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/datatogether/warc"
 )
 
 func TestDoRequest(t *testing.T) {
@@ -15,18 +17,17 @@ func TestDoRequest(t *testing.T) {
 	}))
 
 	req, _ := http.NewRequest("GET", s.URL, nil)
-	records, err := DoRequest(req)
+	reqr, resr, err := DoRequest(req, warc.Records{})
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
 
-	buf := bytes.NewBuffer(nil)
-	for _, rec := range records {
-		if err := rec.Write(buf); err != nil {
-			t.Error(err.Error())
-		}
+	if reqr.Type != warc.RecordTypeRequest {
+		t.Errorf("expected record to be request type")
 	}
 
-	fmt.Println(buf.String())
+	if resr.Type != warc.RecordTypeResponse {
+		t.Errorf("expected record to be response type")
+	}
 }

@@ -9,9 +9,9 @@ import (
 	"github.com/datatogether/warc"
 )
 
-func ArchiveUrl(req *http.Request, rw *rewrite.WarcRecordRewriter, records *warc.Records) (err error) {
+func ArchiveUrl(req *http.Request, rw *rewrite.WarcRecordRewriter, records warc.Records) (addRecords warc.Records, err error) {
 	var reqr, resr *warc.Record
-	var addRecords, resources warc.Records
+	var resources warc.Records
 	reqr, resr, err = DoRequest(req, records)
 	if err != nil {
 		return
@@ -31,11 +31,10 @@ func ArchiveUrl(req *http.Request, rw *rewrite.WarcRecordRewriter, records *warc
 		}
 	}
 
-	*records = append(*records, addRecords...)
 	return
 }
 
-func extractResourceRecords(resr *warc.Record, records *warc.Records) (warc.Records, error) {
+func extractResourceRecords(resr *warc.Record, records warc.Records) (warc.Records, error) {
 	rrecs := warc.Records{}
 	ext := resources.NewExtractor()
 	urls, err := ext.ExtractResponseUrls(resr)
