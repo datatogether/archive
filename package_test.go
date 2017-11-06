@@ -8,7 +8,7 @@ func TestPackagePathname(t *testing.T) {
 	cases := []struct {
 		in, out string
 	}{
-		{"http://localhost:8080/nccwsc.usgs.gov/sites/default/files/files/ACCCNRS_Report_2015.pdf", "nccwsc.usgs.gov/sites/default/files/files/ACCCNRS_Report_2015.pdf"},
+		{"https://nccwsc.usgs.gov/sites/default/files/files/ACCCNRS_Report_2015.pdf", "/nccwsc.usgs.gov/sites/default/files/files/ACCCNRS_Report_2015.pdf"},
 	}
 
 	for i, c := range cases {

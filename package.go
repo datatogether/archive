@@ -24,7 +24,7 @@ func PackagePathName(rawurl string) string {
 		// fmt.Println("adusting path:", u.Path, "->", u.Path+"/index.html")
 		u.Path += "/index.html"
 	}
-	return strings.TrimPrefix(u.Path, "/")
+	return strings.TrimPrefix(u.String(), "/")
 }
 
 func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) {
@@ -45,6 +45,7 @@ func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) 
 		if added[path] {
 			continue
 		}
+		fmt.Println(path)
 
 		added[path] = true
 		fmt.Println(path)

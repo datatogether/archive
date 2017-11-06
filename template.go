@@ -41,7 +41,7 @@ func NewTemplateData(title string, urls []string, records warc.Records) *Templat
 	recs := make([]*TemplateRecord, len(urls))
 	for i, u := range urls {
 		recs[i] = &TemplateRecord{
-			Path: PackagePathName(u),
+			Path: "." + PackagePathName(u),
 			Url:  u,
 		}
 	}
