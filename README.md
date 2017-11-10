@@ -2,14 +2,15 @@
 
 [![GitHub](https://img.shields.io/badge/project-Data_Together-487b57.svg?style=flat-square)](http://github.com/datatogether)
 [![Slack](https://img.shields.io/badge/slack-Archivers-b44e88.svg?style=flat-square)](https://archivers-slack.herokuapp.com/)
+[![License](https://img.shields.io/github/license/datatogether/archive.svg?style=flat-square)](./LICENSE) 
 [![GoDoc](https://godoc.org/github.com/datatogether/archive?status.svg)](http://godoc.org/github.com/datatogether/archive)
-[![License](https://img.shields.io/github/license/datatogether/archive.svg)](./LICENSE) 
 
 Archive is a golang package for creating/working with warc & cdxj archives.
 
 ## License & Copyright
 
-Copyright (C) 2017 Data Together
+Copyright (C) 2017 Data Together  
+
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU AFFERO General Public License as published by the Free Software
 Foundation, version 3.0.
