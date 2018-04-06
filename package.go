@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/datatogether/warc"
-	"github.com/qri-io/cafs/memfs"
+	"github.com/qri-io/cafs"
 )
 
 func PackagePathName(rawurl string) string {
@@ -27,8 +27,8 @@ func PackagePathName(rawurl string) string {
 	return strings.TrimPrefix(u.String(), "/")
 }
 
-func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) {
-	pkg := memfs.NewMemdir("/")
+func PackageRecords(urls []string, records warc.Records) (*cafs.Memdir, error) {
+	pkg := cafs.NewMemdir("/")
 	// cheap hack for now to only add files once, this should happen *much* earlier
 	// in the archival process
 	added := map[string]bool{}
@@ -40,8 +40,8 @@ func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) 
 			continue
 		}
 
-		// path := rw.Urlrw.RewriteString(rec.TargetUri())
-		path := PackagePathName(rec.TargetUri())
+		// path := rw.Urlrw.RewriteString(rec.TargetURI())
+		path := PackagePathName(rec.TargetURI())
 		if added[path] {
 			continue
 		}
@@ -49,7 +49,7 @@ func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) 
 
 		added[path] = true
 		fmt.Println(path)
-		pkg.AddChildren(memfs.NewMemfileBytes(path, body))
+		pkg.AddChildren(cafs.NewMemfileBytes(path, body))
 	}
 
 	buf := &bytes.Buffer{}
@@ -78,8 +78,8 @@ func PackageRecords(urls []string, records warc.Records) (*memfs.Memdir, error) 
 	}
 
 	pkg.AddChildren(
-		memfs.NewMemfileBytes("index.html", indexBuf.Bytes()),
-		memfs.NewMemfileBytes("archive.warc", buf.Bytes()),
+		cafs.NewMemfileBytes("index.html", indexBuf.Bytes()),
+		cafs.NewMemfileBytes("archive.warc", buf.Bytes()),
 	)
 
 	return pkg, nil

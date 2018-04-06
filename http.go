@@ -14,7 +14,7 @@ import (
 // the given records pointer, returning the response record & a list of all dependant resources
 func DoRequest(req *http.Request, records warc.Records) (reqr, resr *warc.Record, err error) {
 	// don't perform requests for urls already in this list of archives
-	if rec := records.TargetUriRecord(req.URL.String(), warc.RecordTypeResponse, warc.RecordTypeResource); rec != nil {
+	if rec := records.TargetURIRecord(req.URL.String(), warc.RecordTypeResponse, warc.RecordTypeResource); rec != nil {
 		return
 	}
 
@@ -39,7 +39,7 @@ func RequestRecord(req *http.Request) *warc.Record {
 		Type: warc.RecordTypeRequest,
 		Headers: map[string]string{
 			warc.FieldNameContentType:   "application/http; msgtype=request",
-			warc.FieldNameWARCRecordID:  warc.NewUuid(),
+			warc.FieldNameWARCRecordID:  warc.NewUUID(),
 			warc.FieldNameWARCTargetURI: req.URL.String(),
 		},
 		Content: bytes.NewBuffer(body),
@@ -49,7 +49,7 @@ func RequestRecord(req *http.Request) *warc.Record {
 func contentFromHttpRequest(req *http.Request) []byte {
 	buf := &bytes.Buffer{}
 
-	if err := warc.WriteRequestStatusAndHeaders(buf, req); err != nil {
+	if err := warc.WriteRequestMethodAndHeaders(buf, req); err != nil {
 		return buf.Bytes()
 	}
 
@@ -73,7 +73,7 @@ func HttpResponseRecord(res *http.Response) (*warc.Record, error) {
 	}
 
 	buf := &bytes.Buffer{}
-	warc.WriteHttpHeaders(buf, res.Header)
+	warc.WriteHTTPHeaders(buf, res.Header)
 	buf.WriteString("\r\n")
 	buf.Write(sanitized)
 
@@ -82,7 +82,7 @@ func HttpResponseRecord(res *http.Response) (*warc.Record, error) {
 		Headers: map[string]string{
 			warc.FieldNameWARCPayloadDigest:         warc.Sha1Digest(raw),
 			warc.FieldNameContentType:               "application/http; msgtype=response",
-			warc.FieldNameWARCRecordID:              warc.NewUuid(),
+			warc.FieldNameWARCRecordID:              warc.NewUUID(),
 			warc.FieldNameWARCIdentifiedPayloadType: mimetype,
 			warc.FieldNameWARCTargetURI:             res.Request.URL.String(),
 		},
