@@ -42,7 +42,7 @@ func extractResourceRecords(resr *warc.Record, records warc.Records) (warc.Recor
 		return nil, err
 	}
 
-	reqUrl, err := url.Parse(resr.TargetUri())
+	reqUrl, err := url.Parse(resr.TargetURI())
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +54,8 @@ func extractResourceRecords(resr *warc.Record, records warc.Records) (warc.Recor
 		}
 
 		// skip if we've already archived this url
-		if records.TargetUriRecord(abs.String(), warc.RecordTypeResponse, warc.RecordTypeResource) != nil ||
-			rrecs.TargetUriRecord(abs.String(), warc.RecordTypeResponse, warc.RecordTypeResource) != nil {
+		if records.TargetURIRecord(abs.String(), warc.RecordTypeResponse, warc.RecordTypeResource) != nil ||
+			rrecs.TargetURIRecord(abs.String(), warc.RecordTypeResponse, warc.RecordTypeResource) != nil {
 			continue
 		}
 
